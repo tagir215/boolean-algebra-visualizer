@@ -1,6 +1,7 @@
 #ifndef LOGIC_GATE_PRINTER
 #define LOGIC_GATE_PRINTER
 
+//tämä on vain debuggaamista varten. Se printtaa porttien struktuurit
 class LogicGatePrinter : public BaseHandler{
 public:
 	void handle(LogicGate* logicGate) override{

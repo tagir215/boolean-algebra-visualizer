@@ -20,6 +20,5 @@ int main(){
 	coordinateHandler.setNextHandler(&printer);
 	printer.setNextHandler(&renderer);
 
-
 	syntaxHandler.handle(thing);
 }

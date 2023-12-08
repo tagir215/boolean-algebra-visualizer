@@ -17,10 +17,10 @@ public:
 
 
 private:
-	const int WIRE_DIST = 6;
-	const int SCALE = 9;
+	const int WIRE_DIST = 8;
+	const int SCALE = 16;
 
-	//sets x for all gates and signals
+    //asettaa aluksi x koordinaatit signaali elementeille
 	int setX(LogicGate* gate, int d){
 		gate->x = d;
 		int maxD = d;
@@ -36,7 +36,7 @@ private:
 	}
 
 
-	//translates everything to fit the canvas
+    //siirtää kaiken alkamaan 0 kohdasta
 	void set0(LogicGate* gate, int x){
 		gate->x = x-gate->x*SCALE;
 		for(Signal* s : gate->inputs){
@@ -48,14 +48,14 @@ private:
 		}
 	}
 
-	//sets initial ideal y for every gate and signal
+    //asettaa ideaalin y lokaation signaali elementeille
 	void setBaseY(LogicGate* gate, int y){
 		gate->y = y;
 		int middle = gate->inputs.size()/2;
 		int skip = -1;
-		if (gate->inputs.size()%2==0){
-			skip = middle;
-		}
+//		if (gate->inputs.size()%2==0){
+//			skip = middle;
+//		}
 		int i =0;
 		for(Signal* s : gate->inputs){
 			if(i==skip) i++;
@@ -71,7 +71,7 @@ private:
 
 	}
 
-	//moves gate and it's children 
+    //siirtää porttia ja sen lapsia y suunnassa
 	void moveGate(LogicGate* gate, int translateY){
 		gate->y += translateY;
 		for(Signal* s : gate->inputs){
@@ -84,29 +84,23 @@ private:
 		}
 	}
 
-	//checks collisions and moves gates if needed
+    //tarkistaa onko portilla osumia toisiin portteihin ja siirtää portin jos on tarve
 	void handleCollisions(LogicGate* gate){
 		std::queue<LogicGate*>gateQueue;
-		int middle = gate->inputs.size()/2;
-		int i = -middle;
+		int i=0;
 		for(Signal* s : gate->inputs){
 			if(LogicGate* g = dynamic_cast<LogicGate*>(s)){
 				handleCollisions(g);
 				gateQueue.push(g);
 			}
 			if(gateQueue.size()>1){
-				int direction1 = gateQueue.front()->y <=0 ? -1 : 1;
-				int direction2 = gateQueue.back()->y <=0 ? -1 : 1;
-				while(checkIfCollides(gateQueue.front(),gateQueue.back())){
-					if(direction1!=direction2){
-						moveGate(gateQueue.front(),direction1);
-						moveGate(gateQueue.back(),direction2);
+				LogicGate* gate1 = gateQueue.front();
+				LogicGate* gate2 = gateQueue.back();
+				while(checkIfCollides(gate1,gate2)){
+					if(i==0){
+						moveGate(gate1,-1);
 					}else{
-						if(direction1>0){
-							moveGate(gateQueue.back(),direction1);
-						}else{
-							moveGate(gateQueue.front(),direction1);
-						}
+						moveGate(gate2,1);
 					}
 				}
 				gateQueue.pop();
@@ -116,13 +110,13 @@ private:
 		}
 	}
 
-	//checks if gates on same x collides. y is inverted
+    //ottaa kaksi porttia ja tarkistaa onko niillä osumia
 	bool checkIfCollides(LogicGate* gate1, LogicGate* gate2){
 		LogicGate* lower = gate1->y > gate2->y ? gate1 : gate2;	
 		LogicGate* higher = gate1->y < gate2->y ? gate1 : gate2;	
 		int yl = lower->y - lower->inputs.size()/2;
 		int yh = higher->y + higher->inputs.size()/2;
-		return yl <= yh;
+		return yl-1 <= yh;
 	}
 };
 
