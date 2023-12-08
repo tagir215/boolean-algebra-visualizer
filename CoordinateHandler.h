@@ -2,22 +2,25 @@
 #define COORDINATE_HANDLER
 #include "BaseHandler.h"
 #include <vector>
+#include <queue>
 
 class CoordinateHandler : public BaseHandler{
 public:
 	void handle(LogicGate* logicGate) override{
 		int maxD = setX(logicGate, 0);
 		set0(logicGate,(maxD+1)*SCALE);
-		int xy[100][100] = {};
-		setY(logicGate,xy);
+		setBaseY(logicGate,10);
+		handleCollisions(logicGate);
+
 		next->handle(logicGate);
 	}
 
 
 private:
-	const int WIRE_DIST = 7;
-	const int SCALE = 9;
+	const int WIRE_DIST = 8;
+	const int SCALE = 16;
 
+    //asettaa aluksi x koordinaatit signaali elementeille
 	int setX(LogicGate* gate, int d){
 		gate->x = d;
 		int maxD = d;
@@ -33,6 +36,7 @@ private:
 	}
 
 
+    //siirtää kaiken alkamaan 0 kohdasta
 	void set0(LogicGate* gate, int x){
 		gate->x = x-gate->x*SCALE;
 		for(Signal* s : gate->inputs){
@@ -44,76 +48,76 @@ private:
 		}
 	}
 
-	int nextAvailableY(int x,int (&xy)[100][100]){
-		for(int i=0; i<100; i++){
-			int point = xy[x][i];
-			if(point == 0){
-				return i;
-			}
-
-		}
-		return 0;
-	}
-	void fillMap(int x, int width, int y, int (&xy)[100][100]){
-		x = x-100;
-		width += 50;
-		if(x<0) x =0;
-		while(x<=width){
-			xy[x][y] = 1;
-			x++;
-		}
-	}
-
-	int setY(LogicGate* gate, int (&xy)[100][100]){
-		int topY=0;
-		int bottomY=0;
-		int nextY = nextAvailableY(gate->x,xy);
-
-		int middleI = -1;
-		if(gate->inputs.size()%2==0){
-			middleI = gate->inputs.size()/2;
-		}
-
-		int i=0;
+    //asettaa ideaalin y lokaation signaali elementeille
+	void setBaseY(LogicGate* gate, int y){
+		gate->y = y;
+		int middle = gate->inputs.size()/2;
+		int skip = -1;
+//		if (gate->inputs.size()%2==0){
+//			skip = middle;
+//		}
+		int i =0;
 		for(Signal* s : gate->inputs){
-			int y = 0;		
-			if(i==middleI){
-				int middle = nextAvailableY(s->x,xy);
-				fillMap(s->x,SCALE,middle,xy);
-			}
+			if(i==skip) i++;
+			int y2 = gate->y - middle + i;	
 			if(LogicGate* g = dynamic_cast<LogicGate*>(s)){
-				y = setY(g,xy);
-				fillMap(s->x,SCALE,s->y,xy);
+				setBaseY(g,y2);
 			}
 			else{
-				y = nextAvailableY(s->x,xy);
-				s->y = y;
-				fillMap(s->x,2,s->y,xy);
-			}
-
-			if(i==0){
-				topY = y;
-			}
-			else if(i==gate->inputs.size()-1){
-				bottomY = y;
-				fillMap(s->x,2,s->y+1,xy);
+				s->y = y2;
 			}
 			i++;
 		}
 
-		int height = bottomY-topY;
-		if(height>0){
-			int newY = topY + height/2;
-			gate->y = newY;
-		}else{
-			gate->y = nextY;
-		}
-		fillMap(gate->x,SCALE,gate->y,xy);
-
-		return gate->y;
 	}
 
+    //siirtää porttia ja sen lapsia y suunnassa
+	void moveGate(LogicGate* gate, int translateY){
+		gate->y += translateY;
+		for(Signal* s : gate->inputs){
+			if(LogicGate* g = dynamic_cast<LogicGate*>(s)){
+				moveGate(gate,translateY);
+			}
+			else{
+				s->y += translateY;
+			}
+		}
+	}
 
+    //tarkistaa onko portilla osumia toisiin portteihin ja siirtää portin jos on tarve
+	void handleCollisions(LogicGate* gate){
+		std::queue<LogicGate*>gateQueue;
+		int i=0;
+		for(Signal* s : gate->inputs){
+			if(LogicGate* g = dynamic_cast<LogicGate*>(s)){
+				handleCollisions(g);
+				gateQueue.push(g);
+			}
+			if(gateQueue.size()>1){
+				LogicGate* gate1 = gateQueue.front();
+				LogicGate* gate2 = gateQueue.back();
+				while(checkIfCollides(gate1,gate2)){
+					if(i==0){
+						moveGate(gate1,-1);
+					}else{
+						moveGate(gate2,1);
+					}
+				}
+				gateQueue.pop();
+
+			}
+			i++;
+		}
+	}
+
+    //ottaa kaksi porttia ja tarkistaa onko niillä osumia
+	bool checkIfCollides(LogicGate* gate1, LogicGate* gate2){
+		LogicGate* lower = gate1->y > gate2->y ? gate1 : gate2;	
+		LogicGate* higher = gate1->y < gate2->y ? gate1 : gate2;	
+		int yl = lower->y - lower->inputs.size()/2;
+		int yh = higher->y + higher->inputs.size()/2;
+		return yl-1 <= yh;
+	}
 };
 
 #endif

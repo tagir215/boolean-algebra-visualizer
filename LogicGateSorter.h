@@ -9,6 +9,7 @@
 #include "LogicGate.h"
 #include "Wire.h"
 
+//tämä luokka lajittelee logiikkaportit puu data struktuuriksi
 class LogicGateSorter : public BaseHandler{
 
 public:
@@ -23,6 +24,7 @@ public:
 
 private:
 
+    //muuttaa string inputin logiikka porteiksi
 	LogicGate* syntaxToGate(const std::string& input, int& i) {
 		std::queue<Signal*>andQueue;
 		std::queue<Signal*>orQueue;
@@ -61,6 +63,8 @@ private:
 	
 
 
+    //määrittää onko signaali pelkkä signaali vai sitten logiikkaportti
+    //tässä kohtaa katsotaan vain että onko se ja portti 
 	Signal* defineSignal(std::queue<Signal*>& signalQueue){
 		if(signalQueue.size()==1){
 			Signal* signal = signalQueue.front();
@@ -73,6 +77,7 @@ private:
 		}
 	}
 
+    //luo ja portin jonosta signaaleja
 	LogicGate* andGate(std::queue<Signal*>& signalQueue){
 		LogicGate* gate = new LogicGate();
 		gate->type='&';
@@ -83,6 +88,8 @@ private:
 		return gate;
 	}
 
+    //tässä kohtaa ei ole vielä tietoa onko käsiteltävissä oleva portti ja vai tai portti
+    //joten se muistaakseni määritellään tässä
 	LogicGate* defineFinalGate(std::queue<Signal*>& signalQueue){
 		if(signalQueue.size()>1){
 			LogicGate* gate = new LogicGate();
