@@ -11,14 +11,13 @@ public:
 		set0(logicGate,(maxD+1)*SCALE);
 		setBaseY(logicGate,10);
 		handleCollisions(logicGate);
-
-		next->handle(logicGate);
+		handleNext(logicGate);
 	}
 
 
 private:
-	const int WIRE_DIST = 8;
-	const int SCALE = 16;
+	const int WIRE_DIST = 9;
+	const int SCALE = 12;
 
     //asettaa aluksi x koordinaatit signaali elementeille
 	int setX(LogicGate* gate, int d){
@@ -53,9 +52,9 @@ private:
 		gate->y = y;
 		int middle = gate->inputs.size()/2;
 		int skip = -1;
-//		if (gate->inputs.size()%2==0){
-//			skip = middle;
-//		}
+		if (gate->inputs.size()%2==0){
+			skip = middle;
+		}
 		int i =0;
 		for(Signal* s : gate->inputs){
 			if(i==skip) i++;
@@ -76,7 +75,7 @@ private:
 		gate->y += translateY;
 		for(Signal* s : gate->inputs){
 			if(LogicGate* g = dynamic_cast<LogicGate*>(s)){
-				moveGate(gate,translateY);
+				moveGate(g,translateY);
 			}
 			else{
 				s->y += translateY;

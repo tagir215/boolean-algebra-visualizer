@@ -2,11 +2,12 @@
 #define HANDLER
 #include <string>
 #include "LogicGate.h"
+#include <iostream>
 
 class BaseHandler{
 public:
 
-	BaseHandler* next;
+	BaseHandler* next = nullptr;
 
     //logiikka minkä handleri suorittaa
 	virtual void handle(const std::string& input) {};
@@ -20,8 +21,10 @@ public:
 	}
 
     //aloittaa seuraavan handlerin toiminnon ketjussa
-	void handleNext(std::string& input){
+	template <typename T>
+	void handleNext(T input){
 		if(next == nullptr){
+			std::cout<<"0";
 			return;
 		}
 		next->handle(input);

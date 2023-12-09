@@ -11,18 +11,20 @@ class RendererImpl : public Renderer{
 public:
     //renderöi portit
 	void renderLogicGates(LogicGate* rootGate) override{
-		std::string xString = "                                                                                ~";
-        int top = 1000;
-        int bottom = 0;
-        findBorders(rootGate,&top,&bottom);
-        const int canvasHeight = bottom-top+20;
-        std::vector<std::string> canvas;
-        for(int i=0; i<canvasHeight; i++){
-            canvas.push_back(xString);
-        }
+		int top = 1000;
+		int bottom = 0;
+		int right = 0;
+		findBorders(rootGate,&top,&bottom,&right);
+		std::string xString(right+17,' ');
+		xString += '~';
+		const int canvasHeight = bottom-top+20;
+		std::vector<std::string>canvas;
+		for(int i=0; i<canvasHeight; i++){
+		    canvas.push_back(xString);
+		}
 
 		fillCanvas(canvas, rootGate);
-        fillEnd(canvas, rootGate);
+		fillEnd(canvas, rootGate);
 		renderCanvas(canvas);
 	}
 private:
@@ -30,16 +32,19 @@ private:
     const int invertedDistance = 1;
 
     //etsii rajakohdat logiikkaportti struktuurista
-    void findBorders(LogicGate* gate, int* top, int* bottom){
-        if(gate->y < *top){
-            *top = gate->y;
-        }
-        if(gate->y > *bottom){
-            *bottom = gate->y;
-        }
+    void findBorders(LogicGate* gate, int* top, int* bottom, int* right){
         for(Signal* s : gate->inputs){
+	        if(s->y < *top){ 
+		    *top = s->y;
+		}
+           	if(s->y > *bottom){
+		    *bottom = s->y;
+		}
+		if(s->x > *right){
+		    *right = s->x;
+		}
             if(LogicGate* g = dynamic_cast<LogicGate*>(s)){
-                findBorders(g,top,bottom);
+                findBorders(g,top,bottom,right);
             }
         }
     }
@@ -76,7 +81,7 @@ private:
         int dist = parent->x - child->x;
         int middle = dist/2;
         if(dynamic_cast<LogicGate*>(child)){
-            middle = middle/2+1;
+	    middle = middle + 1;
         }
         for(int i=1; i<middle; i++){
             int x = child->x+i;
@@ -123,7 +128,7 @@ private:
     //vanhempiin
     void fillEnd(std::vector<std::string>& canvas, LogicGate* root){
         for(int i=1; i<10; i++){
-            char c = i == 9 ? '?' : '_';
+	    char c = i == 1 ? '.' : '_';
             if(i==1) c = '.';
             canvas[root->y][root->x+i] = c;
         }
