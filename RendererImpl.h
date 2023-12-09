@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include "Renderer.h"
+#include "GarbageCollector.h"
 #include <vector>
 
 class RendererImpl : public Renderer{
@@ -26,6 +27,7 @@ public:
 		fillCanvas(canvas, rootGate);
 		fillEnd(canvas, rootGate);
 		renderCanvas(canvas);
+		GarbageCollector::deleteGates(rootGate);
 	}
 private:
     const char invertedChar = '!';
