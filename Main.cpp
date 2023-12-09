@@ -16,9 +16,9 @@ int main(){
 	RendererImpl renderer;
 
 	syntaxHandler.setNextHandler(&logicGateSorter);
-	logicGateSorter.setNextHandler(&coordinateHandler);
-	coordinateHandler.setNextHandler(&printer);
-	printer.setNextHandler(&renderer);
+	logicGateSorter.setNextHandler(&printer);
+	printer.setNextHandler(&coordinateHandler);
+	coordinateHandler.setNextHandler(&renderer);
 
 	syntaxHandler.handle(thing);
 }

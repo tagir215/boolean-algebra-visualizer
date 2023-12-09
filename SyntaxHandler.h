@@ -11,7 +11,7 @@ class SyntaxHandler : public BaseHandler{
 public:	
 	void handle(const std::string& input) override {
 		if(checkSyntax(input)){
-            next->handle(input);
+			handleNext(input);
 		}else{
 			std::cout<<"error"<<std::endl;
 		}

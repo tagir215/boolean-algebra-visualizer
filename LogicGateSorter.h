@@ -18,7 +18,7 @@ public:
 	void handle(const std::string& input) override{
 		int i = 0;
 		LogicGate* gate = syntaxToGate(input, i);
-		next->handle(gate);
+		handleNext(gate);
 	}
 
 

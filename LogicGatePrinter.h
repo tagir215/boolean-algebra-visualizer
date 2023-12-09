@@ -6,7 +6,7 @@ class LogicGatePrinter : public BaseHandler{
 public:
 	void handle(LogicGate* logicGate) override{
 		printGate(logicGate);
-		next->handle(logicGate);
+		handleNext(logicGate);
 	}
 private:
 	void printGate(LogicGate* g){
