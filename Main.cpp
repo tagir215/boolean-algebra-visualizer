@@ -4,7 +4,7 @@
 #include "LogicGateSorter.h"
 #include "CoordinateHandler.h"
 #include "LogicGatePrinter.h"
-#include "RendererImpl.h"
+#include "Renderer.h"
 
 int main(){
 	Input input;
@@ -13,7 +13,7 @@ int main(){
 	LogicGateSorter logicGateSorter;
 	LogicGatePrinter printer;
 	CoordinateHandler coordinateHandler;
-	RendererImpl renderer;
+	Renderer renderer;
 
 	syntaxHandler.setNextHandler(&logicGateSorter);
 	logicGateSorter.setNextHandler(&printer);
